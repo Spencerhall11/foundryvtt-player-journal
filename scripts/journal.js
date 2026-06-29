@@ -1,4 +1,4 @@
-
+import { getPersonalJournal, savePersonalJournal, getPartyJournal, savePartyJournal, getGroupJournal, saveGroupJournal, getCodex, saveCodex } from "./journal_store.js";
 
 export class PlayerJournal extends Application{
 
@@ -98,7 +98,7 @@ export class PlayerJournal extends Application{
     // refresh landing
     this.render(false);
     }
-    
+
     activateListeners(html){
         super.activateListeners(html);
         html.find(".journal-personal").click(() => this._openPersonal());
@@ -112,9 +112,24 @@ export class PlayerJournal extends Application{
         new PlayerJournal().render(true);
     }
 
-    _openPersonal() {};
-    _openParty() {};
-    _openGroup(groupId) {};
-    _openCodex() {};
+    _openPersonal() {   
+        const journal = getPersonalJournal();
+        new JournalView("Personal Journal", journal, savePersonalJournal).render(true);
+    }
+
+    _openParty() {
+        const journal = getPartyJournal();
+        new JournalView("Party Journal", journal, savePartyJournal).render(true);
+    }
+
+    _openGroup(groupId) {
+        const journal = getGroupJournal(groupId);
+        new JournalView("Group Journal", journal, (j) => saveGroupJournal(groupId, j)).render(true);
+    }
+
+    _openCodex() {
+        const codex = getCodex();
+        new JournalView("Codex", codex, saveCodex).render(true);
+    }
 }
 
