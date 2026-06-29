@@ -1,24 +1,143 @@
-import { getPersonalJournal, savePersonalJournal, getPartyJournal, savePartyJournal, getGroupJournal, saveGroupJournal, getCodex, saveCodex } from "./journal_store.js";
+<div class="pj-entry-view">
+    <!-- header -->
+    <div class="pj-entry-header">
+        <span class="pj-entry-title">{{title}}</span>
+        <button class="new-entry">+ New Entry</button>
+    </div>
+
+    <!-- entry list -->
+    <div class="pj-entry-list">
+        {{#each entries}}
+        <div class="pj-entry-card">
+            <div class="pj-entry-card-header">
+                <span class="pj-entry-card-title">{{this.title}}</span>
+                <span class="pj-entry-card-meta">{{this.createdBy}} — {{this.timestamp}}</span>
+            </div>
+            <div class="pj-entry-card-body">{{this.body}}</div>
+            <div class="pj-entry-card-tags">
+                {{#each this.tags}}
+                <span class="pj-tag">{{this}}</span>
+                {{/each}}
+            </div>
+            <div class="pj-entry-card-actions">
+                <button class="edit-entry" data-entry-id="{{this.id}}">Edit</button>
+                <button class="delete-entry" data-entry-id="{{this.id}}">Delete</button>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>
 
 
+<style>
+    .pj-entry-view {
+        background: #1a1f1a;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+        font-family: monospace;
+        color: #7db87d;
+        height: 100%;
+    }
 
+    .pj-entry-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #7db87d;
+        padding-bottom: 8px;
+    }
 
-{
-        "id": "foundryvtt-player-journal",
-        "title": "Player Journal",
-        "description": "A per-player and shared party journal with modern UI for Metanthropes.",
-        "version": "1.0.0", 
-        "compatibility": {
-            "minimum": "12",
-            "verified": "13"
-            },
-        "esmodules": [
-            "scripts/main.js"
-            ],
-        "templates": [
-            "templates/journal.html",
-            "templates/entry.html"
-            ]   
+    .pj-entry-title {
+        font-size: 14px;
+        font-weight: bold;
+        letter-spacing: 0.05em;
+    }
 
-}
+    .pj-entry-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        overflow-y: auto;
+        flex: 1;
+    }
 
+    .pj-entry-card {
+        background: #f5f5f0;
+        border: 1px solid #7db87d;
+        border-radius: 3px;
+        padding: 10px 12px;
+        color: #1a1a1a;
+    }
+
+    .pj-entry-card-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+
+    .pj-entry-card-title {
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .pj-entry-card-meta {
+        font-size: 10px;
+        color: #666;
+    }
+
+    .pj-entry-card-body {
+        font-size: 12px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        margin-bottom: 6px;
+    }
+
+    .pj-entry-card-tags {
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        margin-bottom: 6px;
+    }
+
+    .pj-tag {
+        background: #1a1f1a;
+        color: #7db87d;
+        border: 1px solid #7db87d;
+        border-radius: 2px;
+        padding: 1px 6px;
+        font-size: 10px;
+    }
+
+    .pj-entry-card-actions {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+    }
+
+    button.new-entry,
+    button.edit-entry,
+    button.delete-entry {
+        background: #1a1f1a;
+        border: 1px solid #7db87d;
+        color: #7db87d;
+        padding: 4px 10px;
+        font-family: monospace;
+        cursor: pointer;
+        border-radius: 3px;
+        font-size: 11px;
+    }
+
+    button.new-entry:hover,
+    button.edit-entry:hover {
+        background: #7db87d;
+        color: #1a1f1a;
+    }
+
+    button.delete-entry:hover {
+        background: #8b2020;
+        border-color: #8b2020;
+        color: #fff;
+    }
+</style>
