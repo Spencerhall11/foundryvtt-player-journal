@@ -1,4 +1,6 @@
 import { getPersonalJournal, savePersonalJournal, getPartyJournal, savePartyJournal, getGroupJournal, saveGroupJournal, getCodex, saveCodex } from "./journal_store.js";
+import { JournalView } from "./journal_view.js"
+
 
 export class PlayerJournal extends Application{
 

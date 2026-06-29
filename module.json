@@ -9,7 +9,8 @@
             "verified": "13"
             },
         "esmodules": [
-            "scripts/main.js"
+            "scripts/main.js",
+            "scripts/journal_view.js"
             ],
         "templates": [
             "templates/journal.html",
