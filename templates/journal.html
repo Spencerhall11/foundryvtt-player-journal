@@ -1,0 +1,86 @@
+<div class="pj-landing">
+    <!--The main title part of it-->
+    <span class="pj-title">{{userName}}'s Personal Utility Device</span>
+    
+    <!--The actions-->
+    <div class="pj-actions">
+    <button class="journal-personal">Personal Journal</button>
+    <button class="journal-party">Party Journal</button>
+    <button class="journal-codex">Codex</button>
+    </div>
+
+    <!--the different groups-->
+    <div class="pj-groups">
+    <span class="pj-section-title">Your Groups</span>
+    {{#each groups}}
+    <button class="journal-group" data-group-id="{{this.id}}">
+        {{this.name}} ({{this.memberCount}} members)
+    </button>
+    {{/each}}
+    <button class="create-group">+ Create New Group</button>
+    </div>
+</div>
+
+<!--Aesthetic shit-->
+<style>
+    .pj-landing {
+        background: #1a1f1a;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        font-family: monospace;
+        color: #7db87d;
+    }
+
+    .pj-title {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #7db87d;
+    padding-bottom: 8px;
+    }
+
+    .pj-actions {
+    display: flex;
+    gap: 8px;
+    }
+
+    .pj-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #4a7a4a;
+    }
+
+    .pj-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    }
+
+    button.journal-personal,
+    button.journal-party,
+    button.journal-codex,
+    button.journal-group,
+    button.create-group {
+    background: #0f140f;
+    border: 1px solid #7db87d;
+    color: #7db87d;
+    padding: 6px 12px;
+    font-family: monospace;
+    cursor: pointer;
+    text-align: left;
+    border-radius: 3px;
+    }
+
+    button.journal-personal:hover,
+    button.journal-party:hover,
+    button.journal-codex:hover,
+    button.journal-group:hover,
+    button.create-group:hover {
+    background: #7db87d;
+    color: #0f140f;
+    }
+    
+</style>

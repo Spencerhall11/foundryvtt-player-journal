@@ -1,7 +1,10 @@
+import { PlayerJournal } from "./journal.js";
 
 
 //acts one and states that the journal is initialized when it opens
 Hooks.once("init", () => {
+
+        window.PlayerJournal = PlayerJournal;
         //register the settings
         game.settings.register("foundryvtt-player-journal", "personal-journals", {
         scope: "world",
@@ -60,8 +63,8 @@ Hooks.once("ready", () => {
         height: 40px;
         border-radius: 6px;
         background: #0a0a1a;
-        border: 1px solid #00ffcc;
-        color: #00ffcc;
+        border: 1px solid #7db87d;
+        color: #7db87d;
         font-size: 16px;
         cursor: pointer;
     `;
