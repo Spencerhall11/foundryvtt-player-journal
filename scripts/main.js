@@ -1,7 +1,7 @@
 import { PlayerJournal } from "./journal.js";
 
 
-//acts one and states that the journal is initialized when it opens
+//acts once and states that the journal is initialized when it opens
 Hooks.once("init", () => {
 
         window.PlayerJournal = PlayerJournal;
@@ -48,15 +48,26 @@ Hooks.once("init", () => {
 
 //states the module is ready
 Hooks.once("ready", () => {
-    //make button
+    _injectButton();
+    console.log("Player Journal | Ready");
+});
+
+// re-inject if Metanthropes wipes the DOM
+Hooks.on("renderSidebar", () => {
+    if (!document.getElementById("pj-launch-btn")) {
+        _injectButton();
+    }
+});
+
+function _injectButton() {
+    const pos = game.settings.get("foundryvtt-player-journal", "button-position");
     const btn = document.createElement("button");
-    const pos = game.settings.get("foundryvtt-player-journal", "button-position")
+    btn.id = "pj-launch-btn";
     btn.innerHTML = `<i class="fas fa-book"></i>`;
     btn.title = "Player Journal";
-    //style and location 
     btn.style.cssText = `
         position: fixed;
-        top:  ${pos.top}px;
+        top: ${pos.top}px;
         left: ${pos.left}%;
         z-index: 99999;
         width: 40px;
@@ -69,17 +80,12 @@ Hooks.once("ready", () => {
         cursor: pointer;
     `;
 
-    //click handling
     let wasDragged = false;
     btn.addEventListener("click", () => {
-        if (wasDragged) {
-        wasDragged = false;
-        return;
-        }
+        if (wasDragged) { wasDragged = false; return; }
         PlayerJournal.open();
     });
 
-    //button drag logic
     let isDragging = false;
     let offsetX, offsetY;
     btn.addEventListener("mousedown", (e) => {
@@ -98,15 +104,11 @@ Hooks.once("ready", () => {
         if (!isDragging) return;
         wasDragged = true;
         isDragging = false;
-        // save position
         await game.settings.set("foundryvtt-player-journal", "button-position", {
             top: parseInt(btn.style.top),
             left: parseInt(btn.style.left)
         });
     });
 
-    //inject page
     document.body.appendChild(btn);
-
-    console.log("Player Journal | Ready");
-});
+}
