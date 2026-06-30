@@ -1,4 +1,4 @@
-export class JournalView extends foundry.applications.api.ApplicationV2 {
+export class JournalView extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
 
     static DEFAULT_OPTIONS = {
         id: "journal-view",

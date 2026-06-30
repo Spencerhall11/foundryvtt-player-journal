@@ -1,13 +1,13 @@
 import { getPersonalJournal, savePersonalJournal, getPartyJournal, savePartyJournal, getGroupJournal, saveGroupJournal, getCodex, saveCodex } from "./journal_store.js";
 import { JournalView } from "./journal_view.js";
 
-export class PlayerJournal extends foundry.applications.api.ApplicationV2 {
+export class PlayerJournal extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
 
     static DEFAULT_OPTIONS = {
-        id: "player-journal",
-        window: { title: "Personal Log" },
-        position: { width: 600, height: 500 },
-        resizable: true
+    id: "player-journal",
+    window: { title: "Personal Log" },
+    position: { width: 600, height: 500, top: 200, left: 400 },
+    resizable: true
     };
 
     static PARTS = {
