@@ -25,6 +25,12 @@ export class PlayerJournal extends foundry.applications.api.HandlebarsApplicatio
     }
 
     _onRender(context, options) {
+        document.body.appendChild(this.element);
+        this.element.style.position = "fixed";
+        this.element.style.zIndex = "99999";
+        this.element.style.top = "200px";
+        this.element.style.left = "400px";
+    
         this.element.querySelector(".journal-personal")?.addEventListener("click", () => this._openPersonal());
         this.element.querySelector(".journal-party")?.addEventListener("click", () => this._openParty());
         this.element.querySelectorAll(".journal-group").forEach(el => {
@@ -41,30 +47,36 @@ export class PlayerJournal extends foundry.applications.api.HandlebarsApplicatio
     async _createGroup() {
         const otherPlayers = game.users
             .filter(u => !u.isGM && u.id !== game.user.id)
-            .map(u => `<label><input type="checkbox" value="${u.id}"> ${u.name}</label>`)
+            .map(u => `<label><input type="checkbox" name="member-${u.id}" value="${u.id}"> ${u.name}</label>`)
             .join("");
-        const content = `
-            <div class="pj-create-group">
-                <label>Group Name</label>
-                <input type="text" id="group-name" placeholder="Enter group name..."/>
-                <label>Invite Members</label>
-                <div class="pj-member-list">${otherPlayers}</div>
-            </div>`;
-        new Dialog({
-            title: "Create Group",
-            content,
-            buttons: {
-                create: { label: "Create", callback: async (html) => await this._saveNewGroup(html) },
-                cancel: { label: "Cancel" }
+    
+        await foundry.applications.api.DialogV2.prompt({
+            window: { title: "Create Group" },
+            content: `
+                <form>
+                    <div class="form-group">
+                        <label>Group Name</label>
+                        <input type="text" name="group-name" placeholder="Enter group name..."/>
+                    </div>
+                    <div class="form-group">
+                        <label>Invite Members</label>
+                        <div class="pj-member-list">${otherPlayers}</div>
+                    </div>
+                </form>`,
+            ok: {
+                label: "Create",
+                callback: async (event, button) => {
+                    await this._saveNewGroup(button.form);
+                }
             }
-        }).render(true);
+        });
     }
 
-    async _saveNewGroup(html) {
-        const name = html.find("#group-name").val().trim();
+    async _saveNewGroup(form) {
+        const name = form.elements["group-name"].value.trim();
         if (!name) return ui.notifications.warn("Group needs a name.");
         const members = [];
-        html.find(".pj-member-list input:checked").each((i, el) => members.push(el.value));
+        form.querySelectorAll(".pj-member-list input:checked").forEach(el => members.push(el.value));
         members.push(game.user.id);
         const id = foundry.utils.randomID();
         const group = { id, name, createdBy: game.user.id, members };

@@ -32,9 +32,15 @@ export class JournalView extends foundry.applications.api.HandlebarsApplicationM
     }
 
     _onRender(context, options) {
+        document.body.appendChild(this.element);
+        this.element.style.position = "fixed";
+        this.element.style.zIndex = "99999";
+        this.element.style.top = "100px";
+        this.element.style.left = "200px";
+    
         this.element.querySelector(".new-entry")?.addEventListener("click", () => this._newEntry());
         this.element.querySelectorAll(".edit-entry").forEach(el => {
-            el.addEventListener("click", (e) => this._editEntry(e.currentTarget.dataset.entryId));
+         el.addEventListener("click", (e) => this._editEntry(e.currentTarget.dataset.entryId));
         });
         this.element.querySelectorAll(".delete-entry").forEach(el => {
             el.addEventListener("click", (e) => this._deleteEntry(e.currentTarget.dataset.entryId));
@@ -42,70 +48,81 @@ export class JournalView extends foundry.applications.api.HandlebarsApplicationM
     }
 
     async _newEntry() {
-        const content = `
-            <div class="pj-new-entry">
-                <input type="text" id="entry-title" placeholder="Entry title..."/>
-                <textarea id="entry-body" rows="6" placeholder="Write your notes here..."></textarea>
-                <input type="text" id="entry-tags" placeholder="Tags (comma separated)..."/>
-            </div>`;
-        new Dialog({
-            title: "New Entry",
-            content,
-            buttons: {
-                save: { label: "Save", callback: async (html) => await this._saveNewEntry(html) },
-                cancel: { label: "Cancel" }
+        await foundry.applications.api.DialogV2.prompt({
+            window: { title: "New Entry" },
+            content: `
+                <form>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="entry-title" placeholder="Entry title..."/>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea name="entry-body" rows="6" placeholder="Write your notes here..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Tags</label>
+                        <input type="text" name="entry-tags" placeholder="Tags (comma separated)..."/>
+                    </div>
+                </form>`,
+            ok: {
+                label: "Save",
+                callback: async (event, button) => {
+                    const form = button.form;
+                    const title = form.elements["entry-title"].value.trim();
+                    const body = form.elements["entry-body"].value.trim();
+                    const tags = form.elements["entry-tags"].value.split(",").map(t => t.trim()).filter(t => t);
+                    if (!title) return ui.notifications.warn("Entry needs a title.");
+                    const entry = {
+                        id: foundry.utils.randomID(),
+                        title, body, tags,
+                        createdBy: game.user.name,
+                        timestamp: new Date().toLocaleString()
+                    };
+                    this.journal.entries.push(entry);
+                    await this.saveFn(this.journal);
+                    this.render();
+                }
             }
-        }).render(true);
+        });
     }
 
     async _editEntry(entryId) {
         const entry = this.journal.entries.find(e => e.id === entryId);
         if (!entry) return;
-        const content = `
-            <div class="pj-new-entry">
-                <input type="text" id="entry-title" value="${entry.title}"/>
-                <textarea id="entry-body" rows="6">${entry.body}</textarea>
-                <input type="text" id="entry-tags" value="${entry.tags.join(", ")}"/>
-            </div>`;
-        new Dialog({
-            title: "Edit Entry",
-            content,
-            buttons: {
-                save: {
-                    label: "Save",
-                    callback: async (html) => {
-                        entry.title = html.find("#entry-title").val().trim();
-                        entry.body = html.find("#entry-body").val().trim();
-                        entry.tags = html.find("#entry-tags").val().split(",").map(t => t.trim()).filter(t => t);
-                        await this.saveFn(this.journal);
-                        this.render();
-                    }
-                },
-                cancel: { label: "Cancel" }
+        await foundry.applications.api.DialogV2.prompt({
+            window: { title: "Edit Entry" },
+            content: `
+                <form>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="entry-title" value="${entry.title}"/>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea name="entry-body" rows="6">${entry.body}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Tags</label>
+                        <input type="text" name="entry-tags" value="${entry.tags.join(", ")}"/>
+                    </div>
+                </form>`,
+            ok: {
+                label: "Save",
+                callback: async (event, button) => {
+                    const form = button.form;
+                    entry.title = form.elements["entry-title"].value.trim();
+                    entry.body = form.elements["entry-body"].value.trim();
+                    entry.tags = form.elements["entry-tags"].value.split(",").map(t => t.trim()).filter(t => t);
+                    await this.saveFn(this.journal);
+                    this.render();
+                }
             }
-        }).render(true);
+        });
     }
 
     async _deleteEntry(entryId) {
         this.journal.entries = this.journal.entries.filter(e => e.id !== entryId);
-        await this.saveFn(this.journal);
-        this.render();
-    }
-
-    async _saveNewEntry(html) {
-        const title = html.find("#entry-title").val().trim();
-        const body = html.find("#entry-body").val().trim();
-        const tags = html.find("#entry-tags").val().split(",").map(t => t.trim()).filter(t => t);
-        if (!title) return ui.notifications.warn("Entry needs a title.");
-        const entry = {
-            id: foundry.utils.randomID(),
-            title,
-            body,
-            tags,
-            createdBy: game.user.name,
-            timestamp: new Date().toLocaleString()
-        };
-        this.journal.entries.push(entry);
         await this.saveFn(this.journal);
         this.render();
     }

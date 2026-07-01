@@ -48,12 +48,23 @@ Hooks.once("init", () => {
 
 //states the module is ready
 Hooks.once("ready", () => {
+    const style = document.createElement("style");
+    
+    document.head.appendChild(style);
     _injectButton();
+
+    // Watch for button removal and re-inject
+    const observer = new MutationObserver(() => {
+        if (!document.getElementById("pj-launch-btn")) {
+            _injectButton();
+        }
+    });
+    observer.observe(document.body, { childList: true, subtree: false });
     console.log("Player Journal | Ready");
 });
 
 // re-inject if Metanthropes wipes the DOM
-Hooks.on("renderSidebar", () => {
+Hooks.on("canvasReady", () => {
     if (!document.getElementById("pj-launch-btn")) {
         _injectButton();
     }
@@ -81,15 +92,19 @@ function _injectButton() {
     `;
 
     let wasDragged = false;
+    let isDragging = false;
+    let offsetX, offsetY;
+    let startX, startY;
+
     btn.addEventListener("click", () => {
         if (wasDragged) { wasDragged = false; return; }
         PlayerJournal.open();
     });
 
-    let isDragging = false;
-    let offsetX, offsetY;
     btn.addEventListener("mousedown", (e) => {
         isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
         offsetX = e.clientX - btn.getBoundingClientRect().left;
         offsetY = e.clientY - btn.getBoundingClientRect().top;
     });
@@ -100,14 +115,17 @@ function _injectButton() {
         btn.style.top = (e.clientY - offsetY) + "px";
     });
 
-    document.addEventListener("mouseup", async () => {
+    document.addEventListener("mouseup", async (e) => {
         if (!isDragging) return;
-        wasDragged = true;
         isDragging = false;
-        await game.settings.set("foundryvtt-player-journal", "button-position", {
-            top: parseInt(btn.style.top),
-            left: parseInt(btn.style.left)
-        });
+        const moved = Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5;
+        if (moved) {
+            wasDragged = true;
+            await game.settings.set("foundryvtt-player-journal", "button-position", {
+                top: parseInt(btn.style.top),
+                left: Math.round((parseInt(btn.style.left) / window.innerWidth) * 100)
+            });
+        }
     });
 
     document.body.appendChild(btn);
