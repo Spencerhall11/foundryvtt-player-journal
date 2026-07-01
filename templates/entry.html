@@ -8,23 +8,47 @@
     <!-- entry list -->
     <div class="pj-entry-list">
         {{#each entries}}
-        <div class="pj-entry-card">
-            <div class="pj-entry-card-header">
-                <span class="pj-entry-card-title">{{this.title}}</span>
-                <span class="pj-entry-card-meta">{{this.createdBy}} — {{this.timestamp}}</span>
-            </div>
+    <div class="pj-entry-card" data-entry-id="{{this.id}}">
+        <!-- card header -->
+        <div class="pj-entry-card-header">
+            <span class="pj-entry-card-title">{{this.title}}</span>
+            <span class="pj-entry-card-meta">{{this.createdBy}} — {{this.timestamp}}</span>
+        </div>
+
+    <!-- tabs -->
+     <div class="pj-tab-bar">
+            <button class="pj-tab-btn pj-tab-active" data-entry-id="{{this.id}}" data-tab="notes">Notes</button>
+            <button class="pj-tab-btn" data-entry-id="{{this.id}}" data-tab="sketch">Sketch</button>
+        </div>
+
+    <!-- notes tab -->
+    <div class="pj-tab-content pj-tab-notes" data-entry-id="{{this.id}}">
             <div class="pj-entry-card-body">{{this.body}}</div>
             <div class="pj-entry-card-tags">
                 {{#each this.tags}}
                 <span class="pj-tag">{{this}}</span>
                 {{/each}}
-            </div>
-            <div class="pj-entry-card-actions">
-                <button class="edit-entry" data-entry-id="{{this.id}}">Edit</button>
-                <button class="delete-entry" data-entry-id="{{this.id}}">Delete</button>
-            </div>
         </div>
-        {{/each}}
+    </div>
+
+    <!-- sketch tab -->
+    <div class="pj-tab-content pj-tab-sketch" data-entry-id="{{this.id}}" style="display:none;">
+        <div class="pj-sketch-tools">
+                <input type="color" class="pj-color-picker" data-entry-id="{{this.id}}" value="#000000" title="Color"/>
+                <input type="range" class="pj-brush-size" data-entry-id="{{this.id}}" min="1" max="20" value="4" title="Brush size"/>
+                <button class="pj-clear-sketch" data-entry-id="{{this.id}}">Clear</button>
+            </div>
+            <canvas class="pj-sketch-canvas" data-entry-id="{{this.id}}" width="600" height="300"></canvas>
+        </div>
+
+        <!-- actions -->
+    <div class="pj-entry-card-actions">
+            <button class="edit-entry" data-entry-id="{{this.id}}">Edit</button>
+            <button class="copy-sketch" data-entry-id="{{this.id}}">Copy Sketch</button>
+            <button class="delete-entry" data-entry-id="{{this.id}}">Delete</button>
+        </div>
+    </div>
+    {{/each}}
     </div>
 
     
@@ -139,6 +163,70 @@
         border-color: #8b2020;
         color: #fff;
     }
+    .pj-tab-bar {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 6px;
+}
+
+.pj-tab-btn {
+    background: #1a1f1a;
+    border: 1px solid #7db87d;
+    color: #7db87d;
+    padding: 3px 10px;
+    font-family: monospace;
+    cursor: pointer;
+    border-radius: 3px 3px 0 0;
+    font-size: 11px;
+}
+
+.pj-tab-btn.pj-tab-active {
+    background: #7db87d;
+    color: #1a1f1a;
+}
+
+.pj-sketch-tools {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 0;
+    margin-bottom: 4px;
+}
+
+.pj-sketch-canvas {
+    border: 1px solid #7db87d;
+    cursor: crosshair;
+    display: block;
+    background: #fff;
+    width: 100%;
+}
+
+button.copy-sketch {
+    background: #1a1f1a;
+    border: 1px solid #7db87d;
+    color: #7db87d;
+    padding: 4px 10px;
+    font-family: monospace;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+button.copy-sketch:hover {
+    background: #7db87d;
+    color: #1a1f1a;
+}
+
+button.pj-clear-sketch {
+    background: #1a1f1a;
+    border: 1px solid #8b2020;
+    color: #8b2020;
+    padding: 3px 8px;
+    font-family: monospace;
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 11px;
+}
 </style>
 
 </div>
