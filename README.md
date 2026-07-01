@@ -17,6 +17,9 @@ A player-facing journal module built for Metanthropes, styled as an in-universe 
 
 Built to match the Metanthropes aesthetic. Dark matte interface with muted green accents, utilitarian font, worn field-tablet feel. Functional over flashy, like a ruggedized device that has been through a few sessions.
 
+## still left
+The sketch related parts
+
 ## Technical Notes
 
 - Per-player data namespaced by game.user.id
