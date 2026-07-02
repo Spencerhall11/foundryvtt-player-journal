@@ -17,9 +17,6 @@ A player-facing journal module built for Metanthropes, styled as an in-universe 
 
 Built to match the Metanthropes aesthetic. Dark matte interface with muted green accents, utilitarian font, worn field-tablet feel. Functional over flashy, like a ruggedized device that has been through a few sessions.
 
-## still left
-The sketch related parts
-
 ## Technical Notes
 
 - Per-player data namespaced by game.user.id
@@ -37,3 +34,6 @@ The sketch related parts
 ## Installation
 
 Drop the foundryvtt-player-journal folder into your Foundry Data/modules/ directory and enable it in Module Management.
+
+## state
+Functional and now only needs live testing
