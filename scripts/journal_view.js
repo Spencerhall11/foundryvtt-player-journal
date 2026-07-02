@@ -45,6 +45,50 @@ export class JournalView extends foundry.applications.api.HandlebarsApplicationM
         this.element.querySelectorAll(".delete-entry").forEach(el => {
             el.addEventListener("click", (e) => this._deleteEntry(e.currentTarget.dataset.entryId));
         });
+        // Tab switching
+this.element.querySelectorAll(".pj-tab-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        const entryId = e.currentTarget.dataset.entryId;
+        const tab = e.currentTarget.dataset.tab;
+        this._switchTab(entryId, tab);
+    });
+});
+
+// Initialize canvases
+this.element.querySelectorAll(".pj-sketch-canvas").forEach(canvas => {
+    this._initCanvas(canvas);
+});
+
+// Load existing sketches
+this.element.querySelectorAll(".pj-sketch-canvas").forEach(canvas => {
+    const entryId = canvas.dataset.entryId;
+    const entry = this.journal.entries.find(e => e.id === entryId);
+    if (entry?.sketch) {
+        const img = new Image();
+        img.onload = () => canvas.getContext("2d").drawImage(img, 0, 0);
+        img.src = entry.sketch;
+    }
+});
+
+// Clear sketch buttons
+this.element.querySelectorAll(".pj-clear-sketch").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        const entryId = e.currentTarget.dataset.entryId;
+        const canvas = this.element.querySelector(`.pj-sketch-canvas[data-entry-id="${entryId}"]`);
+        canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+        this._saveSketch(entryId, canvas);
+    });
+});
+
+// Copy sketch buttons
+this.element.querySelectorAll(".copy-sketch").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        const entryId = e.currentTarget.dataset.entryId;
+        const canvas = this.element.querySelector(`.pj-sketch-canvas[data-entry-id="${entryId}"]`);
+        canvas.toBlob(blob => navigator.clipboard.write([new ClipboardItem({"image/png": blob})]));
+        ui.notifications.info("Sketch copied to clipboard.");
+    });
+});
     }
 
     async _newEntry() {
@@ -126,4 +170,54 @@ export class JournalView extends foundry.applications.api.HandlebarsApplicationM
         await this.saveFn(this.journal);
         this.render();
     }
+
+    _switchTab(entryId, tab) {
+    const card = this.element.querySelector(`.pj-entry-card[data-entry-id="${entryId}"]`);
+    card.querySelectorAll(".pj-tab-btn").forEach(b => b.classList.remove("pj-tab-active"));
+    card.querySelector(`.pj-tab-btn[data-tab="${tab}"]`).classList.add("pj-tab-active");
+    card.querySelectorAll(".pj-tab-content").forEach(c => c.style.display = "none");
+    card.querySelector(`.pj-tab-${tab}`).style.display = "block";
+}
+
+_initCanvas(canvas) {
+    const ctx = canvas.getContext("2d");
+    let drawing = false;
+
+    canvas.addEventListener("mousedown", (e) => {
+        drawing = true;
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+        if (!drawing) return;
+        const colorPicker = this.element.querySelector(`.pj-color-picker[data-entry-id="${canvas.dataset.entryId}"]`);
+        const brushSize = this.element.querySelector(`.pj-brush-size[data-entry-id="${canvas.dataset.entryId}"]`);
+        ctx.strokeStyle = colorPicker?.value ?? "#000000";
+        ctx.lineWidth = brushSize?.value ?? 4;
+        ctx.lineCap = "round";
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+    });
+
+    canvas.addEventListener("mouseup", async () => {
+        drawing = false;
+        await this._saveSketch(canvas.dataset.entryId, canvas);
+    });
+
+    canvas.addEventListener("mouseleave", async () => {
+        if (drawing) {
+            drawing = false;
+            await this._saveSketch(canvas.dataset.entryId, canvas);
+        }
+    });
+}
+
+async _saveSketch(entryId, canvas) {
+    const entry = this.journal.entries.find(e => e.id === entryId);
+    if (!entry) return;
+    entry.sketch = canvas.toDataURL("image/png");
+    await this.saveFn(this.journal);
+}
+
 }
