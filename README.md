@@ -37,3 +37,8 @@ Drop the foundryvtt-player-journal folder into your Foundry Data/modules/ direct
 
 ## state
 Functional and now only needs live testing
+
+
+The following listed features are planned but not yet implemented:
+- UUID linking / TextEditor.enrichHTML integration
+- Codex item/bestiary UUID resolution
