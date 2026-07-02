@@ -123,6 +123,8 @@ this.element.querySelectorAll(".copy-sketch").forEach(btn => {
                         createdBy: game.user.name,
                         timestamp: new Date().toLocaleString()
                     };
+
+                    if (!this.journal.entries) this.journal.entries = [];
                     this.journal.entries.push(entry);
                     await this.saveFn(this.journal);
                     this.render();
