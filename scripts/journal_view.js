@@ -27,7 +27,7 @@ export class JournalView extends foundry.applications.api.HandlebarsApplicationM
     async _prepareContext() {
         return {
             title: this.journalTitle,
-            entries: this.journal.entries ?? []
+            entries: Array.isArray(this.journal.entries) ? this.journal.entries : []
         };
     }
 
@@ -62,7 +62,8 @@ this.element.querySelectorAll(".pj-sketch-canvas").forEach(canvas => {
 // Load existing sketches
 this.element.querySelectorAll(".pj-sketch-canvas").forEach(canvas => {
     const entryId = canvas.dataset.entryId;
-    const entry = this.journal.entries.find(e => e.id === entryId);
+    const entries = Array.isArray(this.journal.entries) ? this.journal.entries : [];
+    const entry = entries.find(e => e.id === entryId);
     if (entry?.sketch) {
         const img = new Image();
         img.onload = () => canvas.getContext("2d").drawImage(img, 0, 0);
@@ -124,7 +125,9 @@ this.element.querySelectorAll(".copy-sketch").forEach(btn => {
                         timestamp: new Date().toLocaleString()
                     };
 
-                    if (!this.journal.entries) this.journal.entries = [];
+                    if (!this.journal.entries || !Array.isArray(this.journal.entries)) {
+                    this.journal.entries = [];
+                        }
                     this.journal.entries.push(entry);
                     await this.saveFn(this.journal);
                     this.render();

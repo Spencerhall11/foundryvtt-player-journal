@@ -14,19 +14,14 @@ export async function savePersonalJournal(journal){
     await game.settings.set("foundryvtt-player-journal", "personal-journals", all);
 }
 
-export function getPartyJournal(){
-    
+export function getPartyJournal() {
     const all = game.settings.get("foundryvtt-player-journal", "party-journals");
-    
-    return all ?? { entries: [] };
+    return { entries: Array.isArray(all.entries) ? all.entries : [] };
 }
 
-export async function savePartyJournal(journal){
-    const all = game.settings.get("foundryvtt-player-journal", "party-journals");
-
-    all.entries = journal;
-        
-    await game.settings.set("foundryvtt-player-journal", "party-journals", all);
+export async function savePartyJournal(journal) {
+    const data = { entries: journal.entries ?? [] };
+    await game.settings.set("foundryvtt-player-journal", "party-journals", data);
 }
 
 export function getGroupJournal(groupId) {
